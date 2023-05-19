@@ -1,0 +1,55 @@
+<?php
+/*
+Plugin Name: Remove unwanted Wordpress overhead code
+Plugin URI: https://conversionzauber.com
+Description: Dieses Plugin entfernt unnotwendigen Code aus WordPress, um die Seitenladezeit zu verbessern.
+Version: 1.0
+Author: Cyrus Badde
+Author URI: https://conversionzauber.com
+License: GPLv2 or later
+*/
+
+// Entferne unnotwendige Meta-Tags im Head-Bereich
+function entferne_unnoetige_metatags() {
+    remove_action('wp_head', 'rsd_link'); // Remove Really Simple Discovery link
+    remove_action('wp_head', 'wp_generator'); // Remove WordPress version number
+    remove_action('wp_head', 'feed_links', 2); // Remove RSS feed links
+    remove_action('wp_head', 'feed_links_extra', 3); // Remove extra RSS feed links
+    remove_action('wp_head', 'index_rel_link'); // Remove index link
+    remove_action('wp_head', 'start_post_rel_link', 10, 0); // Remove random post link
+    remove_action('wp_head', 'parent_post_rel_link', 10, 0); // Remove parent post link
+    remove_action('wp_head', 'adjacent_posts_rel_link', 10, 0); // Remove adjacent post links
+    remove_action('wp_head', 'wp_shortlink_wp_head', 10, 0); // Remove shortlink
+}
+add_action('init', 'entferne_unnoetige_metatags');
+
+// Entferne unnotwendige Gutenberg CSS-Dateien
+function entferne_unnoetige_gutenberg_css() {
+    wp_dequeue_style('wp-block-library'); // Remove Gutenberg block library CSS
+    wp_dequeue_style('wp-block-library-theme'); // Remove Gutenberg block library theme CSS
+    wp_dequeue_style('wc-block-style'); // Remove WooCommerce block CSS
+}
+add_action('wp_enqueue_scripts', 'entferne_unnoetige_gutenberg_css', 100);
+
+// Entferne unnotwendige Emojis
+function entferne_unnoetige_emojis() {
+    remove_action('wp_head', 'print_emoji_detection_script', 7);
+    remove_action('wp_print_styles', 'print_emoji_styles');
+    remove_action('admin_print_scripts', 'print_emoji_detection_script');
+    remove_action('admin_print_styles', 'print_emoji_styles');
+    remove_filter('the_content_feed', 'wp_staticize_emoji');
+    remove_filter('comment_text_rss', 'wp_staticize_emoji');
+    remove_filter('wp_mail', 'wp_staticize_emoji_for_email');
+}
+add_action('init', 'entferne_unnoetige_emojis');
+
+// Entferne unnotwendige Embeds
+function entferne_unnoetige_embeds() {
+    remove_action('rest_api_init', 'wp_oembed_register_route');
+    remove_filter('oembed_dataparse', 'wp_filter_oembed_result', 10);
+    remove_action('wp_head', 'wp_oembed_add_discovery_links');
+    remove_action('wp_head', 'wp_oembed_add_host_js');
+    add_filter('embed_oembed_discover', '__return_false');
+    remove_filter('pre_oembed_result', 'wp_filter_pre_oembed_result', 10);
+}
+add_action('init', 'entferne_unnoetige_embeds');
